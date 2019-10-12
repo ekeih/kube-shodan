@@ -35,3 +35,15 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.pypi_password }}
+    - name: Build Docker image
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      run: docker build . --file Dockerfile --tag quay.io/ekeih/kube-shodan:${GITHUB_REF#refs/tags/}
+    - name: Login to registry
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      run: echo -n "${registry_token}" | docker login quay.io -u "${registry_user}" --password-stdin
+      env:
+        registry_user: ${{ secrets.quay_user }}
+        registry_token: ${{ secrets.quay_token }}
+    - name: Push Docker image
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      run: docker push quay.io/ekeih/kube-shodan:${GITHUB_REF#refs/tags/}
