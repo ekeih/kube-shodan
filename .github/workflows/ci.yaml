@@ -47,3 +47,30 @@ jobs:
     - name: Push Docker image
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
       run: docker push quay.io/ekeih/kube-shodan:${GITHUB_REF#refs/tags/}
+  Helm:
+    runs-on: ubuntu-latest
+    needs: Publish
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build chart
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      run: |
+        mkdir /tmp/chart
+        wget --no-verbose "https://storage.googleapis.com/kubernetes-helm/helm-v2.14.3-linux-amd64.tar.gz"
+        tar -zxf "helm-v2.14.3-linux-amd64.tar.gz"
+        chmod +x linux-amd64/helm
+        alias helm="$(pwd)/linux-amd64/helm"
+        helm version -c
+        helm init -c
+        helm package -d /tmp/chart chart/kube-shodan
+        git checkout gh-pages
+        git config --global user.name 'Max Rosin'
+        git config --global user.email 'git@hackrid.de'
+        mv /tmp/chart/* .
+        helm repo index .
+        git add kube-shodan-*.tgz
+        git add index.yaml
+        git commit -m 'Update Helm Repo'
+        git push https://x-access-token:${GITHUB_TOKEN}@github.com/ekeih/kube-shodan.git gh-pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.gh_pat }}
