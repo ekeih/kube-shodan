@@ -1,0 +1,49 @@
+# Default values for kube-shodan.
+
+shodanApiToken: 123abc
+# shodanApiSecretName: kube-shodan-existing-secret
+# shodanApiSecretKey: token
+shodanAlertName: kube-shodan
+interval: 60
+
+replicaCount: 1
+
+image:
+  repository: quay.io/ekeih/kube-shodan
+  tag: 0.0.2
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
+
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: true
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+clusterRole:
+  create: true
+  # The name of a cluster role to bind to; if not set and create is
+  # true, a name based on fullname is generated
+  name:

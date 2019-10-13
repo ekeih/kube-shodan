@@ -1,0 +1,41 @@
+{{- if .Values.rbac.create -}}
+{{if .Values.clusterRole.create -}}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: {{ template "kube-shodan.clusterRoleName" . }}
+  labels:
+    app: {{ template "kube-shodan.name" . }}
+    chart: {{ template "kube-shodan.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - nodes
+      - services
+    verbs:
+      - list
+{{- end -}}
+{{- if or .Values.clusterRole.create .Values.clusterRole.name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "kube-shodan.clusterRoleName" . }}
+  labels:
+    app: {{ template "kube-shodan.name" . }}
+    chart: {{ template "kube-shodan.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "kube-shodan.clusterRoleName" . }}
+subjects:
+  - name: {{ template "kube-shodan.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace | quote }}
+    kind: ServiceAccount
+{{- end -}}
+{{- end -}}
