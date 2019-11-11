@@ -9,7 +9,14 @@ kube-shodan monitors the public IPs of a Kubernetes cluster and adds new ones to
 ### Helm
 
 ```
-TBD
+helm repo add ekeih https://ekeih.github.io/helm-charts
+helm repo up
+
+# Pass Shodan token directly
+helm install --namespace kube-shodan --name kube-shodan --set shodanApiToken=TOKEN ekeih/kube-shodan
+
+# Or use Shodan token from existing secret
+helm install --namespace kube-shodan --name kube-shodan --set shodanApiToken=SECRETNAME --set shodanApiSecretKey=SECRETKEY ekeih/kube-shodan
 ```
 
 ### pip
